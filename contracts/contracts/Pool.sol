@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "hardhat/console.sol";
 
-contract Pair {
+contract Pool {
     address public factory;
     address public token0;
     address public token1;
@@ -14,14 +14,17 @@ contract Pair {
         token1 = _token1;
     }
 
-    function approve(address token, uint amount) external {
+    function approve(bool isToken1, uint amount) external {
+        // TODO
+    }
+
+    function deposit(bool isToken1, uint amount) external {
         // TODO
     }
 
     function swap(
-        address inputToken,
-        uint inputAmount,
-        address outputToken
+        bool inputIsToken1,
+        uint inputAmount
         // uint outputTargetAmount
     ) external {
         // TODO

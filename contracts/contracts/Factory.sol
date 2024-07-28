@@ -8,6 +8,10 @@ contract Factory {
     address[] public pools;
     mapping(address => mapping(address => address)) public poolsMap;
 
+    function getPools() external view returns (address[] memory) {
+        return pools;
+    }
+
     function createPool(address _token0, address _token1) external {
         require(_token0 != address(0), "token0 address mustn't be the zero address");
         require(_token1 != address(0), "token1 address mustn't be the zero address");

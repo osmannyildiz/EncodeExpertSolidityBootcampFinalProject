@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useReadContract, useWriteContract } from "wagmi";
+import Factory from "./evm-deployment/Factory.json";
+import deployedAddresses from "./evm-deployment/deployed_addresses.json";
 
 function App() {
-  const [count, setCount] = useState(0)
+	const { isPending, writeContract, error } = useWriteContract();
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	const pools = useReadContract({
+		abi: Factory.abi,
+		address: deployedAddresses["FactoryModule#Factory"],
+		functionName: "getPools",
+	});
+
+	return (
+		<main>
+			<h1>Connect Wallet</h1>
+			<w3m-button />
+
+			<h1>Create Pool</h1>
+			<button
+				type="button"
+				disabled={isPending}
+				onClick={() => {
+					writeContract({
+						abi: Factory.abi,
+						address: deployedAddresses["FactoryModule#Factory"],
+						functionName: "createPool",
+						args: [
+							"0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+							"0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+						],
+					});
+				}}
+			>
+				{isPending ? "wait..." : "click me"}
+			</button>
+			<p style={{ color: "red" }}>{error?.message}</p>
+
+			<h1>Pools</h1>
+			<button
+				type="button"
+				disabled={pools.isFetching}
+				onClick={() => pools.refetch()}
+			>
+				{pools.isFetching ? "wait..." : "refetch"}
+			</button>
+			<ul>
+				{pools.data?.map((pool) => (
+					<li key={pool}>{pool}</li>
+				))}
+			</ul>
+
+			<h1>Deposit into a Pool</h1>
+			<p>TODO</p>
+
+			<h1>Swap</h1>
+			<p>TODO</p>
+		</main>
+	);
 }
 
-export default App
+export default App;

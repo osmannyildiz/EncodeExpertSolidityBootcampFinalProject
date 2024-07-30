@@ -26,5 +26,9 @@
 }
 
 .card {
-	@apply bg-white bg-opacity-40 rounded-xl p-6;
+	@apply p-6 bg-white bg-opacity-40 rounded-xl;
+}
+
+.token-select {
+	@apply px-3 py-2 bg-transparent border border-black border-opacity-20 rounded-xl text-lg;
 }

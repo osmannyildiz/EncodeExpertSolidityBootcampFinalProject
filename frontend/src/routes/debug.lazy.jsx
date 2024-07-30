@@ -1,8 +1,13 @@
+import { createLazyFileRoute } from "@tanstack/react-router";
 import { useReadContract, useWriteContract } from "wagmi";
-import Factory from "./evm-deployment/Factory.json";
-import deployedAddresses from "./evm-deployment/deployed_addresses.json";
+import Factory from "../evm-deployment/Factory.json";
+import deployedAddresses from "../evm-deployment/deployed_addresses.json";
 
-function App() {
+export const Route = createLazyFileRoute("/debug")({
+	component: Debug,
+});
+
+function Debug() {
 	const { isPending, writeContract, error } = useWriteContract();
 
 	const pools = useReadContract({
@@ -12,10 +17,7 @@ function App() {
 	});
 
 	return (
-		<main>
-			<h1>Connect Wallet</h1>
-			<w3m-button />
-
+		<>
 			<h1>Create Pool</h1>
 			<button
 				type="button"
@@ -55,8 +57,6 @@ function App() {
 
 			<h1>Swap</h1>
 			<p>TODO</p>
-		</main>
+		</>
 	);
 }
-
-export default App;

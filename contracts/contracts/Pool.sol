@@ -3,20 +3,11 @@ pragma solidity ^0.8.24;
 
 import {ERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+import {IPool} from "./interfaces/IPool.sol";
 import "hardhat/console.sol";
 
 /// @notice Pool takes no fees
-contract Pool is ERC20 {
-    error NotFactory();
-    error ReentrancyGuard();
-    error Mint_InsufficientLiquidity();
-    error Burn_InsufficientLiquidity();
-    error Swap_InsufficientLiquidity();
-    error Swap_InvalidOutAmount();
-    error Swap_InvalidTo();
-    error Swap_InsufficientInputAmount();
-    error InvalidK();
-
+contract Pool is IPool, ERC20 {
     uint256 public INITIAL_BURN_AMOUNT = 1000;
 
     address public factory;
@@ -31,11 +22,6 @@ contract Pool is ERC20 {
     // Updates with each pool state update
     uint256 public price0CumulativeLast;
     uint256 public price1CumulativeLast;
-
-    event Mint(address indexed sender, uint256 reserve0, uint256 reserve1);
-    event Burn(address indexed sender, uint256 reserve0, uint256 reserve1);
-    event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address to);
-    event Sync(uint256 reserve0, uint256 reserve1);
 
     uint private unlocked = 1;
     modifier nonReentrant() {

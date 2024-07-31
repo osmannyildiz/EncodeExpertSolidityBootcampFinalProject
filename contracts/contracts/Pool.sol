@@ -8,6 +8,7 @@ import "hardhat/console.sol";
 /// @notice Pool takes no fees
 contract Pool is ERC20 {
     error NotFactory();
+    error ReentrancyGuard();
     error Mint_InsufficientLiquidity();
     error Burn_InsufficientLiquidity();
     error Swap_InsufficientLiquidity();
@@ -26,7 +27,8 @@ contract Pool is ERC20 {
     uint112 private reserve1;
     uint32 private blockTimestampLast;
 
-    // Internal price, updated every block
+    // Price for time-weighted average price oracle
+    // Updates with each pool state update
     uint256 public price0CumulativeLast;
     uint256 public price1CumulativeLast;
 
@@ -34,6 +36,14 @@ contract Pool is ERC20 {
     event Burn(address indexed sender, uint256 reserve0, uint256 reserve1);
     event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address to);
     event Sync(uint256 reserve0, uint256 reserve1);
+
+    uint private unlocked = 1;
+    modifier nonReentrant() {
+        if (unlocked != 1) revert ReentrancyGuard();
+        unlocked = 2;
+        _;
+        unlocked = 1;
+    }
 
     constructor() ERC20("LP Token", "LP") {
         factory = msg.sender;
@@ -46,7 +56,7 @@ contract Pool is ERC20 {
     }
 
     // Calculates amount of LP token to mint based on deposits
-    function mint(address to) external returns (uint256 liquidity) {
+    function mint(address to) external nonReentrant returns (uint256 liquidity) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves();
         // Checks balances of token0 and token1 held in pool
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
@@ -57,7 +67,9 @@ contract Pool is ERC20 {
 
         if (totalSupply() == 0) {
             liquidity = Math.sqrt(amount0 * amount1) - INITIAL_BURN_AMOUNT;
-            _mint(address(0), INITIAL_BURN_AMOUNT);
+            // Workaround to burn INITIAL_BURN_AMOUNT
+            _mint(to, liquidity + INITIAL_BURN_AMOUNT);
+            _burn(to, INITIAL_BURN_AMOUNT);
         } else {
             liquidity = Math.min(
                 (amount0 * totalSupply()) / _reserve0,
@@ -74,7 +86,7 @@ contract Pool is ERC20 {
     }
 
     // Calculates amount of LP token to burn based on withdrawals
-    function burn(address to) public returns (uint256 amount0, uint256 amount1) {
+    function burn(address to) external nonReentrant returns (uint256 amount0, uint256 amount1) {
         (uint112 _reserve0, uint112 _reserve1,) = getReserves();
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
@@ -99,7 +111,7 @@ contract Pool is ERC20 {
     }
 
     /// @notice Not supporting flash swaps
-    function swap(uint256 amount0Out, uint256 amount1Out, address to) external {
+    function swap(uint256 amount0Out, uint256 amount1Out, address to) external nonReentrant {
         if (amount0Out == 0 && amount1Out == 0) revert Swap_InvalidOutAmount();
         (uint112 _reserve0, uint112 _reserve1,) = getReserves();
         if (amount0Out > _reserve0 || amount1Out > _reserve1) revert Swap_InsufficientLiquidity();
@@ -132,7 +144,7 @@ contract Pool is ERC20 {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
-
+    // Allows anyone to update the pool's state
     function sync() public {
         (uint112 reserve0_, uint112 reserve1_, ) = getReserves();
         _update(

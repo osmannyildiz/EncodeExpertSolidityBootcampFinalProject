@@ -13,10 +13,12 @@ describe("Factory and Pool", function () {
         await factory.waitForDeployment();
 
         const Token = await ethers.getContractFactory("ERC20Mock");
-        tokenA = await Token.connect(deployer).deploy("Token A", "TKA", 1000000);
+        tokenA = await Token.connect(deployer).deploy("Token A", "TKA");
         await tokenA.waitForDeployment();
-        tokenB = await Token.connect(deployer).deploy("Token B", "TKB", 1000000);
+        await tokenA.connect(deployer).mint(ethers.parseEther("1000000"));
+        tokenB = await Token.connect(deployer).deploy("Token B", "TKB");
         await tokenB.waitForDeployment();
+        await tokenB.connect(deployer).mint(ethers.parseEther("1000000"));
     })
 
     it("should deploy the factory contract", async function () {

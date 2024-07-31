@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* :root {
+	--wui-color-gray-glass-002: rgb(255 255 255 / 0.1) !important;
+	--wui-color-gray-glass-005: transparent !important;
+} */
+
+#background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: -1;
+	background-color: #0093e9;
+	background-image: linear-gradient(340deg, #0093e9 0%, #80d0c7 100%);
+}
+
+.navbar {
+	pointer-events: none;
+}
+.navbar > * {
+	pointer-events: auto;
+}
+
+.card {
+	@apply p-6 bg-white bg-opacity-40 rounded-xl;
+}
+
+.token-select {
+	@apply px-3 py-2 bg-transparent border border-black border-opacity-20 rounded-xl text-lg;
+}

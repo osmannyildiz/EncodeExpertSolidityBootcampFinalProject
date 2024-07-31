@@ -1,12 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { WagmiProvider } from "wagmi";
 import { hardhat, sepolia } from "wagmi/chains";
-import App from "./App.jsx";
 import "./main.css";
+import { routeTree } from "./routeTree.gen";
+
+const router = createRouter({ routeTree });
 
 const queryClient = new QueryClient();
 
@@ -30,13 +33,16 @@ createWeb3Modal({
 	wagmiConfig,
 	projectId,
 	themeMode: "light",
+	themeVariables: {
+		"--w3m-border-radius-master": "0.6px",
+	},
 });
 
 ReactDOM.createRoot(document.getElementById("root")).render(
 	<React.StrictMode>
 		<WagmiProvider config={wagmiConfig}>
 			<QueryClientProvider client={queryClient}>
-				<App />
+				<RouterProvider router={router} />
 			</QueryClientProvider>
 		</WagmiProvider>
 	</React.StrictMode>

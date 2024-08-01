@@ -2,6 +2,7 @@ import { createLazyFileRoute } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { TOKENS } from '../data';
 import { usePool } from '../hooks/usePool.js';
+import toast from "react-hot-toast";
 
 export const Route = createLazyFileRoute('/')({
   component: Swap,
@@ -12,6 +13,7 @@ function Swap() {
   const [buyTokenAddress, setBuyTokenAddress] = useState(TOKENS[1].address);
   const [sellAmount, setSellAmount] = useState('0');
   const [buyAmount, setBuyAmount] = useState('0');
+  const [transferring, setTransferring] = useState(false);
 
   const { useSwap, waitUntilTxMined } = usePool(
     sellTokenAddress,
@@ -21,7 +23,7 @@ function Swap() {
     swap,
     error: swapError,
     isPending: isSwapPending,
-    preSwapTransfer,
+    preSwapTransfer
   } = useSwap();
 
   useEffect(() => {
@@ -30,9 +32,13 @@ function Swap() {
   }, [sellTokenAddress, buyTokenAddress, sellAmount, buyAmount]);
 
   useEffect(() => {
-    console.log({
-      swapError,
-    });
+    if(swapError) {
+      toast.error('Swap failed');
+      // TODO: Handle error properly
+      console.log({
+        swapError,
+      });
+    }
   }, [swapError]);
 
   const onSubmit = async (event) => {
@@ -40,28 +46,39 @@ function Swap() {
 
     if (sellAmount === '0') return;
 
+    let transferReceipt;
+
     try {
-      const transferTxHash = await preSwapTransfer(
+      setTransferring(true);
+
+      transferReceipt = await preSwapTransfer(
         sellAmount,
         sellTokenAddress,
       );
 
-      const receipt = await waitUntilTxMined(transferTxHash);
+    } catch(error) {
+      toast.error('Token transfer failed');
+    } finally {
+      setTransferring(false);
+    }
 
-      if (receipt.status === 'success') {
+    try {
+      if (transferReceipt && transferReceipt.status === 'success') {
         console.log('Transfer successful');
 
         const txHash = await swap(sellAmount, sellTokenAddress);
         const swapReceipt = await waitUntilTxMined(txHash);
 
         if (swapReceipt.status === 'success') {
-          console.log('Swap successful');
+          toast.success('Swap successful');
         }
       }
     } catch (error) {
       // TODO Handle error
     }
   };
+
+  const isLoading = isSwapPending || transferring;
 
   return (
     <div className="card mx-auto max-w-[600px]">
@@ -135,7 +152,7 @@ function Swap() {
           type="submit"
           className="bg-amber-700 text-white rounded-xl px-4 py-4 text-3xl hover:bg-amber-800 transition-colors"
         >
-          {isSwapPending ? 'Swapping...' : 'Swap!'}
+          {isLoading ? 'Swapping...' : 'Swap!'}
         </button>
       </form>
     </div>

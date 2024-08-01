@@ -7,6 +7,7 @@ import { WagmiProvider } from 'wagmi';
 import './main.css';
 import { routeTree } from './routeTree.gen';
 import { PROJECT_ID, wagmiConfig } from './config/web3Modal.js';
+import { Toaster } from "react-hot-toast";
 
 const router = createRouter({ routeTree });
 
@@ -25,6 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
+        <Toaster />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </WagmiProvider>

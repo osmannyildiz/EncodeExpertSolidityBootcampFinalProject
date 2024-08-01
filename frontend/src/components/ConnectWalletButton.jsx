@@ -14,7 +14,7 @@ function ConnectWalletButton() {
 				className="px-3 py-2 bg-white bg-opacity-40 hover:bg-opacity-70 rounded-xl transition-all flex gap-2"
 				onClick={() => openModal()}
 			>
-				{walletInfo && (
+				{walletInfo?.icon && (
 					<img src={walletInfo.icon} alt={walletInfo.name} className="h-6" />
 				)}
 				<span className="font-medium">{shortenAddress(address)}</span>

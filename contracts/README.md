@@ -3,6 +3,6 @@
 ```shell
 npm run hardhat compile
 REPORT_GAS=true npm run hardhat test
-npm run hardhat node
-npm run hardhat -- ignition deploy ./ignition/modules/Factory.js --network localhost
+npm hardhat node
+npx hardhat ignition deploy ./ignition/modules/Factory.js --network localhost
 ```

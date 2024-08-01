@@ -1,24 +1,28 @@
 import { getStaticPoolConfig } from '../utils/pool.js';
-import { useWriteContract, useAccount, usePublicClient } from 'wagmi';
+import { useWriteContract, useAccount, usePublicClient, useWalletClient } from "wagmi";
 import Pool from '../evm-deployment/Pool.json';
 import ERC20Mock from '../evm-deployment/ERC20Mock.json';
 import { parseEther } from 'viem';
+import { writeContract } from "viem/actions";
 
 export const usePool = (token0, token1) => {
   const account = useAccount();
   const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
 
-  function transferBeforeSwap(amountIn, tokenIn) {
+  async function transferBeforeSwap(amountIn, tokenIn) {
     const pool = getStaticPoolConfig(token0, token1);
 
-    if (!account) throw new Error('Account not connected');
+    if (!account || !walletClient) throw new Error('Account not connected');
 
-    return {
+    const transactionHash = await writeContract(walletClient,{
       abi: ERC20Mock.abi,
       address: tokenIn,
       functionName: 'transfer',
       args: [pool.address, parseEther(`${amountIn}`)],
-    };
+    });
+
+    return await waitUntilTxMined(transactionHash);
   }
 
   function syncPool() {
@@ -66,9 +70,9 @@ export const usePool = (token0, token1) => {
         });
       },
       preSwapTransfer: async (amountIn, tokenIn) => {
-        return await writeContractAsync(transferBeforeSwap(amountIn, tokenIn));
+        return await transferBeforeSwap(amountIn, tokenIn);
       },
-      syncPool: async () => {
+      syncPoolBeforeSwap: async () => {
         return await writeContractAsync(syncPool());
       },
     };

@@ -44,7 +44,7 @@ function Pool({ address }) {
 	return (
 		<tr>
 			<td className="pb-2">
-				{token0Name.data} &lt;---&gt; {token1Name.data}
+				{token0Name.data} ↔ {token1Name.data}
 			</td>
 			<td className="pb-2">
 				{Number(reserves.data?.[0])} {token0Symbol.data}

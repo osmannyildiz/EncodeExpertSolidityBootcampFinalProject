@@ -9,8 +9,8 @@ export const Route = createLazyFileRoute("/faucet")({
 function Faucet() {
 	return (
 		<div className="mx-auto flex flex-col gap-4" style={{ maxWidth: "1000px" }}>
-			{TOKENS.map((token) => (
-				<TokenFaucet key={token.address} tokenAddress={token.address} />
+			{TOKENS.map((tokenAddress) => (
+				<TokenFaucet key={tokenAddress} tokenAddress={tokenAddress} />
 			))}
 		</div>
 	);

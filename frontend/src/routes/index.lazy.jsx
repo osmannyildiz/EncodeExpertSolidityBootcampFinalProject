@@ -1,5 +1,6 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import TokenOption from "../components/TokenOption";
 import { TOKENS } from "../data";
 
 export const Route = createLazyFileRoute("/")({
@@ -7,8 +8,8 @@ export const Route = createLazyFileRoute("/")({
 });
 
 function Swap() {
-	const [sellTokenAddress, setSellTokenAddress] = useState(TOKENS[0].address);
-	const [buyTokenAddress, setBuyTokenAddress] = useState(TOKENS[1].address);
+	const [sellTokenAddress, setSellTokenAddress] = useState(TOKENS[0]);
+	const [buyTokenAddress, setBuyTokenAddress] = useState(TOKENS[1]);
 	const [sellAmount, setSellAmount] = useState("0");
 	const [buyAmount, setBuyAmount] = useState("0");
 
@@ -40,10 +41,8 @@ function Swap() {
 							onChange={(event) => setSellTokenAddress(event.target.value)}
 							className="token-select"
 						>
-							{TOKENS.map((token) => (
-								<option key={token.address} value={token.address}>
-									{token.name}
-								</option>
+							{TOKENS.map((tokenAddress) => (
+								<TokenOption key={tokenAddress} tokenAddress={tokenAddress} />
 							))}
 						</select>
 					</div>
@@ -71,13 +70,11 @@ function Swap() {
 							onChange={(event) => setBuyTokenAddress(event.target.value)}
 							className="token-select"
 						>
-							{TOKENS.filter((token) => token.address !== sellTokenAddress).map(
-								(token) => (
-									<option key={token.address} value={token.address}>
-										{token.name}
-									</option>
-								)
-							)}
+							{TOKENS.filter(
+								(tokenAddress) => tokenAddress !== sellTokenAddress
+							).map((tokenAddress) => (
+								<TokenOption key={tokenAddress} tokenAddress={tokenAddress} />
+							))}
 						</select>
 					</div>
 					<input

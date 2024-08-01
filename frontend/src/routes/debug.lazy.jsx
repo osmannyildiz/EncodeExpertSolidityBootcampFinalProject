@@ -24,7 +24,7 @@ function Debug() {
 							abi: Factory.abi,
 							address: deployedAddresses["FactoryModule#Factory"],
 							functionName: "createPool",
-							args: [TOKENS[0].address, TOKENS[1].address],
+							args: [TOKENS[0], TOKENS[1]],
 						});
 					}}
 				>

@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import ConnectWalletButton from "./ConnectWalletButton";
 
 function Header() {
 	return (
 		<header>
 			<div className="fixed top-0 left-0 right-0 h-20 px-6 flex justify-between items-center">
 				<span className="text-2xl font-medium">FiveSwap</span>
-				<w3m-button />
+				<ConnectWalletButton />
 			</div>
 			<nav className="navbar fixed top-0 left-0 right-0 h-20 flex justify-center items-center gap-4">
 				<Link

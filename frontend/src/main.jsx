@@ -33,9 +33,6 @@ createWeb3Modal({
 	wagmiConfig,
 	projectId,
 	themeMode: "light",
-	themeVariables: {
-		"--w3m-border-radius-master": "0.6px",
-	},
 });
 
 ReactDOM.createRoot(document.getElementById("root")).render(

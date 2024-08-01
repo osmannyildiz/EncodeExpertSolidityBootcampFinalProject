@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* :root {
-	--wui-color-gray-glass-002: rgb(255 255 255 / 0.1) !important;
-	--wui-color-gray-glass-005: transparent !important;
-} */
-
 #background {
 	position: fixed;
 	top: 0;

@@ -93,10 +93,7 @@ function Swap() {
 					/>
 				</div>
 
-				<button
-					type="submit"
-					className="bg-amber-700 text-white rounded-xl px-4 py-4 text-3xl hover:bg-amber-800 transition-colors"
-				>
+				<button type="submit" className="btn-primary px-4 py-4 text-3xl">
 					Swap!
 				</button>
 			</form>

@@ -26,12 +26,12 @@ function Header() {
 				>
 					Faucet
 				</Link>
-				{/* <Link
+				<Link
 					to="/debug"
 					className="[&.active]:font-bold [&.active]:bg-opacity-40 px-3 py-2 bg-white bg-opacity-10 rounded-xl transition-all"
 				>
 					🐸 Debug
-				</Link> */}
+				</Link>
 			</nav>
 		</header>
 	);

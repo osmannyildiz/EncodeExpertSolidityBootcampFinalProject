@@ -1,5 +1,6 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import { useReadContract, useWriteContract } from "wagmi";
+import { useWriteContract } from "wagmi";
+import { TOKENS } from "../data";
 import Factory from "../evm-deployment/Factory.json";
 import deployedAddresses from "../evm-deployment/deployed_addresses.json";
 
@@ -10,53 +11,37 @@ export const Route = createLazyFileRoute("/debug")({
 function Debug() {
 	const { isPending, writeContract, error } = useWriteContract();
 
-	const pools = useReadContract({
-		abi: Factory.abi,
-		address: deployedAddresses["FactoryModule#Factory"],
-		functionName: "getPools",
-	});
-
 	return (
-		<>
-			<h1>Create Pool</h1>
-			<button
-				type="button"
-				disabled={isPending}
-				onClick={() => {
-					writeContract({
-						abi: Factory.abi,
-						address: deployedAddresses["FactoryModule#Factory"],
-						functionName: "createPool",
-						args: [
-							"0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-							"0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-						],
-					});
-				}}
-			>
-				{isPending ? "wait..." : "click me"}
-			</button>
-			<p style={{ color: "red" }}>{error?.message}</p>
+		<div className="card mx-auto" style={{ maxWidth: "1000px" }}>
+			<div className="mb-4">
+				<h1 className="text-2xl font-medium">Create Pool</h1>
+				<button
+					type="button"
+					disabled={isPending}
+					className="btn-primary px-3 py-2"
+					onClick={() => {
+						writeContract({
+							abi: Factory.abi,
+							address: deployedAddresses["FactoryModule#Factory"],
+							functionName: "createPool",
+							args: [TOKENS[0].address, TOKENS[1].address],
+						});
+					}}
+				>
+					{isPending ? "wait..." : "click me"}
+				</button>
+				<p style={{ color: "red" }}>{error?.message}</p>
+			</div>
 
-			<h1>Pools</h1>
-			<button
-				type="button"
-				disabled={pools.isFetching}
-				onClick={() => pools.refetch()}
-			>
-				{pools.isFetching ? "wait..." : "refetch"}
-			</button>
-			<ul>
-				{pools.data?.map((pool) => (
-					<li key={pool}>{pool}</li>
-				))}
-			</ul>
+			<div className="mb-4">
+				<h1 className="text-2xl font-medium">Deposit into a Pool</h1>
+				<p>TODO</p>
+			</div>
 
-			<h1>Deposit into a Pool</h1>
-			<p>TODO</p>
-
-			<h1>Swap</h1>
-			<p>TODO</p>
-		</>
+			<div className="mb-4">
+				<h1 className="text-2xl font-medium">Swap</h1>
+				<p>TODO</p>
+			</div>
+		</div>
 	);
 }

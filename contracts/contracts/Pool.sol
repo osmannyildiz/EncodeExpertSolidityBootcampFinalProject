@@ -34,7 +34,14 @@ contract Pool is ERC20 {
 
     event Mint(address indexed sender, uint256 reserve0, uint256 reserve1);
     event Burn(address indexed sender, uint256 reserve0, uint256 reserve1);
-    event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address to);
+    event Swap(
+        address indexed sender,
+        uint256 amount0In,
+        uint256 amount1In,
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to
+    );
     event Sync(uint256 reserve0, uint256 reserve1);
 
     uint private unlocked = 1;
@@ -56,8 +63,10 @@ contract Pool is ERC20 {
     }
 
     // Calculates amount of LP token to mint based on deposits
-    function mint(address to) external nonReentrant returns (uint256 liquidity) {
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves();
+    function mint(
+        address to
+    ) external nonReentrant returns (uint256 liquidity) {
+        (uint112 _reserve0, uint112 _reserve1, ) = getReserves();
         // Checks balances of token0 and token1 held in pool
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
@@ -86,8 +95,10 @@ contract Pool is ERC20 {
     }
 
     // Calculates amount of LP token to burn based on withdrawals
-    function burn(address to) external nonReentrant returns (uint256 amount0, uint256 amount1) {
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves();
+    function burn(
+        address to
+    ) external nonReentrant returns (uint256 amount0, uint256 amount1) {
+        (uint112 _reserve0, uint112 _reserve1, ) = getReserves();
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
         // The pool's balance of LP tokens
@@ -111,11 +122,16 @@ contract Pool is ERC20 {
     }
 
     /// @notice Not supporting flash swaps
-    function swap(uint256 amount0Out, uint256 amount1Out, address to) external nonReentrant {
+    function swap(
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to
+    ) external nonReentrant {
         if (amount0Out == 0 && amount1Out == 0) revert Swap_InvalidOutAmount();
-        (uint112 _reserve0, uint112 _reserve1,) = getReserves();
-        if (amount0Out > _reserve0 || amount1Out > _reserve1) revert Swap_InsufficientLiquidity();
-        
+        (uint112 _reserve0, uint112 _reserve1, ) = getReserves();
+        if (amount0Out > _reserve0 || amount1Out > _reserve1)
+            revert Swap_InsufficientLiquidity();
+
         address _token0 = token0;
         address _token1 = token1;
         if (to == _token0 || to == _token1) revert Swap_InvalidTo();
@@ -124,17 +140,25 @@ contract Pool is ERC20 {
 
         uint balance0 = IERC20(_token0).balanceOf(address(this));
         uint balance1 = IERC20(_token1).balanceOf(address(this));
-        
-        uint amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
-        uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
-        if (amount0In == 0 && amount1In == 0) revert Swap_InsufficientInputAmount();
-        
+
+        uint amount0In = balance0 > _reserve0 - amount0Out
+            ? balance0 - (_reserve0 - amount0Out)
+            : 0;
+        uint amount1In = balance1 > _reserve1 - amount1Out
+            ? balance1 - (_reserve1 - amount1Out)
+            : 0;
+        if (amount0In == 0 && amount1In == 0)
+            revert Swap_InsufficientInputAmount();
+
         assembly {
             let balance0Adjusted := balance0
             let balance1Adjusted := balance1
             let reserve0_ := _reserve0
             let reserve1_ := _reserve1
-            if lt(mul(balance0Adjusted, balance1Adjusted), mul(reserve0_, reserve1_)) {
+            if lt(
+                mul(balance0Adjusted, balance1Adjusted),
+                mul(reserve0_, reserve1_)
+            ) {
                 mstore(0x00, 0xbd8bc364) // keccak256("InvalidK()")
                 revert(0x00, 0x20)
             }
@@ -156,8 +180,13 @@ contract Pool is ERC20 {
     }
 
     // Update reserves and updates price once per block
-    function _update(uint256 balance0, uint256 balance1, uint112 _reserve0, uint112 _reserve1) private {
-        uint32 blockTimestamp = uint32(block.timestamp % 2**32);
+    function _update(
+        uint256 balance0,
+        uint256 balance1,
+        uint112 _reserve0,
+        uint112 _reserve1
+    ) private {
+        uint32 blockTimestamp = uint32(block.timestamp % 2 ** 32);
         uint32 timeElapsed = blockTimestamp - blockTimestampLast;
         if (timeElapsed > 0 && _reserve0 != 0 && _reserve1 != 0) {
             // Perform UQ112x112 fixed point arithmetic ie. (reserveA * 2^112) / reserveB

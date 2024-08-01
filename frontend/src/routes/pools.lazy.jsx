@@ -23,7 +23,7 @@ function Pools() {
 						<th>Pair</th>
 						<th>Reserve 0</th>
 						<th>Reserve 1</th>
-						{/* <th>Actions</th> */}
+						<th>Actions</th>
 					</tr>
 					<tr className="border-t border-black border-opacity-20">
 						<td className="pb-2"></td>

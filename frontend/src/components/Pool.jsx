@@ -52,7 +52,7 @@ function Pool({ address }) {
 			<td className="pb-2">
 				{Number(reserves.data?.[1])} {token1Symbol.data}
 			</td>
-			{/* <td className="pb-2">
+			<td className="pb-2">
 				<button
 					type="button"
 					className="btn-primary px-3 py-2"
@@ -60,7 +60,7 @@ function Pool({ address }) {
 				>
 					Add Liquidity
 				</button>
-			</td> */}
+			</td>
 		</tr>
 	);
 }

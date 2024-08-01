@@ -1,6 +1,7 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TOKENS } from "../data";
+import {usePool} from "../hooks/usePool.js";
 
 export const Route = createLazyFileRoute("/")({
 	component: Swap,
@@ -12,21 +13,47 @@ function Swap() {
 	const [sellAmount, setSellAmount] = useState("0");
 	const [buyAmount, setBuyAmount] = useState("0");
 
+	const {useSwap, waitUntilTxMined} = usePool(sellTokenAddress, buyTokenAddress);
+	const {swap, error: swapError, isPending: isSwapPending, preSwapTransfer} = useSwap();
+
 	useEffect(() => {
 		// TODO Calculate buy amount
 		setBuyAmount(sellAmount);
 	}, [sellTokenAddress, buyTokenAddress, sellAmount, buyAmount]);
 
+	useEffect(() => {
+		console.log({
+			swapError
+		})
+	}, [swapError]);
+
 	const onSubmit = async (event) => {
 		event.preventDefault();
 
-		// TODO
+		if(sellAmount === "0") return;
 
-		console.log("hey done");
+		try {
+			const transferTxHash = await preSwapTransfer(sellAmount, sellTokenAddress);
+
+			const receipt = await waitUntilTxMined(transferTxHash);
+
+			if(receipt.status === 'success') {
+				console.log("Transfer successful");
+
+				const txHash = await swap(sellAmount, sellTokenAddress);
+				const swapReceipt = await waitUntilTxMined(txHash);
+
+				if(swapReceipt.status === 'success') {
+					console.log("Swap successful");
+				}
+			}
+		} catch (error) {
+			// TODO Handle error
+		}
 	};
 
 	return (
-		<div className="card mx-auto" style={{ maxWidth: "600px" }}>
+		<div className="card mx-auto max-w-[600px]">
 			<form className="flex flex-col gap-8" onSubmit={onSubmit}>
 				<div className="flex flex-col gap-2">
 					<div className="flex justify-between items-end">
@@ -97,7 +124,7 @@ function Swap() {
 					type="submit"
 					className="bg-amber-700 text-white rounded-xl px-4 py-4 text-3xl hover:bg-amber-800 transition-colors"
 				>
-					Swap!
+					{isSwapPending ? "Swapping..." : "Swap!"}
 				</button>
 			</form>
 		</div>
